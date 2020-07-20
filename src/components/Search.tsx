@@ -69,7 +69,7 @@ const PersonTable = (props: { persons: PersonModel[], onPersonSelected: (person:
 
 const PersonRow = (props: { person: PersonModel, onPersonSelected: (person: PersonModel) => void }) =>
     <Table.Row>
-        <Table.Cell>
+        <Table.Cell selectable>
             <a
                 href='/#'
                 onClick={(e) => {
