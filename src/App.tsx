@@ -1,15 +1,15 @@
 import Axios, { AxiosResponse } from 'axios';
 import React from 'react';
-import { Container, Loader, Dimmer, Segment } from 'semantic-ui-react';
-import Person from './components/Person';
+import { Container, Dimmer, Loader } from 'semantic-ui-react';
+import PersonDetails from './components/PersonDetails';
 import Search from './components/Search';
 import { Film } from './models/Film';
 import { HomeWorld } from './models/HomeWorld';
-import { Person as PersonModel } from './models/Person';
+import { Person } from './models/Person';
 
 function App() {
-  const [persons, setPersons] = React.useState<PersonModel[]>([])
-  const [person, setPerson] = React.useState<PersonModel>()
+  const [persons, setPersons] = React.useState<Person[]>([])
+  const [person, setPerson] = React.useState<Person>()
   const [films, setFilms] = React.useState<Film[]>()
   const [homeWorld, setHomeworld] = React.useState<HomeWorld>()
   const [loading, setLoading] = React.useState(false)
@@ -24,16 +24,16 @@ function App() {
     }
   }
 
-  const handlePersonSelected = (person: PersonModel) => {   
+  const mapFilm = (response: AxiosResponse<any>) => {
+    return { title: response.data.title, url: response.data.url }
+  }
+
+  const handlePersonSelected = (person: Person) => {   
     setLoading(true)
     setPerson(person)
 
     Axios.get(person.homeworld)
     .then(values => setHomeworld(values.data))
-
-    const mapFilm = (response: AxiosResponse<any>) => {
-      return { title: response.data.title, url: response.data.url }
-    }
 
     Promise.all(person.films.map(url => Axios.get(url)))
       .then((values) => setFilms(values.map(mapFilm)))
@@ -56,7 +56,7 @@ function App() {
           onSearch={handleSearch}
           onPersonSelected={handlePersonSelected}
         />}
-        {person && homeWorld && films && <Person onBack={clearValues} person={person} homeWorld={homeWorld} films={films} />}
+        {person && homeWorld && films && <PersonDetails onBack={clearValues} person={person} homeWorld={homeWorld} films={films} />}
     </Container>
   );
 }

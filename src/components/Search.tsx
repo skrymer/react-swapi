@@ -1,21 +1,19 @@
 import * as React from 'react';
 import { Grid, Input, Table, Button } from 'semantic-ui-react';
-import {Person as PersonModel } from '../models/Person';
+import { Person } from '../models/Person';
 
 interface Props {
-    onPersonSelected: (person: PersonModel) => void
+    onPersonSelected: (person: Person) => void
     onSearch: (query: string) => void
-    searchResults: PersonModel[]
+    searchResults: Person[]
 }
 
-const Search: React.FC<Props> = (props) => {
-    return (
-        <Grid>
-            <Controls {...props} />
-            <SearchResults {...props} />
-        </Grid>
-    );
-};
+const Search: React.FC<Props> = (props) => (
+    <Grid>
+        <Controls {...props} />
+        <SearchResults {...props} />
+    </Grid>
+)
 
 const Controls = (props: Props) => {
     const [query, setQuery] = React.useState<string>('')
@@ -47,7 +45,7 @@ const SearchResults = (props: Props) =>
     </Grid.Row>
 
 
-const PersonTable = (props: { persons: PersonModel[], onPersonSelected: (person: PersonModel) => void }) => (
+const PersonTable = (props: { persons: Person[], onPersonSelected: (person: Person) => void }) => (
     <Table celled>
         <Table.Header>
             <Table.Row>
@@ -67,7 +65,7 @@ const PersonTable = (props: { persons: PersonModel[], onPersonSelected: (person:
     </Table>
 )
 
-const PersonRow = (props: { person: PersonModel, onPersonSelected: (person: PersonModel) => void }) =>
+const PersonRow = (props: { person: Person, onPersonSelected: (person: Person) => void }) =>
     <Table.Row>
         <Table.Cell selectable>
             <a
