@@ -1,21 +1,43 @@
+import Axios from 'axios';
 import * as React from 'react';
-import { Grid, Input, Table, Button } from 'semantic-ui-react';
+import { Button, Grid, Input, Table, Dimmer, Loader } from 'semantic-ui-react';
 import { Person } from '../models/Person';
+import PersonDetails from './PersonDetails';
 
-interface Props {
-    onPersonSelected: (person: Person) => void
-    onSearch: (query: string) => void
-    searchResults: Person[]
+const Persons: React.FC = () => {
+    const [persons, setPersons] = React.useState<Person[]>([])
+    const [person, setPerson] = React.useState<Person>()
+    const [loading, setLoading] = React.useState(false)
+
+    const handleSearch = (query: string) => {
+        if (query) {
+            setLoading(true)
+            Axios.get(`https://swapi.dev/api/people/?search=${query.trim()}`)
+                .then((values) => setPersons(values.data.results))
+                .catch((errors) => console.log(errors))
+                .finally(() => setLoading(false))
+        }
+    }
+
+    return (
+        <Grid style={{ marginTop: '3em' }}>
+            {!!!person && <Controls onSearch={handleSearch} />}
+            {!!!person && <SearchResults persons={persons} onPersonSelected={setPerson} />}
+            {person && <PersonDetails person={person} onBackSelected={() => setPerson(undefined)} />}
+            {loading &&
+                <Dimmer active  >
+                    <Loader indeterminate>Loading...</Loader>
+                </Dimmer>
+            }
+        </Grid>
+    )
 }
 
-const Search: React.FC<Props> = (props) => (
-    <Grid>
-        <Controls {...props} />
-        <SearchResults {...props} />
-    </Grid>
-)
+interface ControlProps {
+    onSearch: (query: string) => void
+}
 
-const Controls = (props: Props) => {
+const Controls = (props: ControlProps) => {
     const [query, setQuery] = React.useState<string>('')
 
     return (
@@ -34,19 +56,20 @@ const Controls = (props: Props) => {
     )
 }
 
-const SearchResults = (props: Props) =>
+interface SearchResultsProps {
+    onPersonSelected: (person: Person) => void
+    persons: Person[]
+}
+
+const SearchResults = (props: SearchResultsProps) =>
     <Grid.Row>
         <Grid.Column >
-            <PersonTable
-                persons={props.searchResults}
-                onPersonSelected={props.onPersonSelected}
-            />
+            <PersonTable {...props} />
         </Grid.Column>
     </Grid.Row>
 
-
-const PersonTable = (props: { persons: Person[], onPersonSelected: (person: Person) => void }) => (
-    <Table celled>
+const PersonTable = (props: SearchResultsProps) => (
+    <Table celled >
         <Table.Header>
             <Table.Row>
                 <Table.HeaderCell>Name</Table.HeaderCell>
@@ -87,4 +110,4 @@ const PersonRow = (props: { person: Person, onPersonSelected: (person: Person) =
         <Table.Cell>{props.person.skin_color}</Table.Cell>
     </Table.Row>
 
-export default Search;
+export default Persons;
