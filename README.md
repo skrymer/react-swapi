@@ -1,3 +1,14 @@
+## Things to cover in this project
+
+* code splitting https://reactjs.org/docs/code-splitting.html
+* suspense https://reactjs.org/docs/concurrent-mode-suspense.html
+* react swr https://swr.vercel.app/
+* styled components https://styled-components.com/docs/basics
+* rest
+* graphql
+* state mangement 
+* formik
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
