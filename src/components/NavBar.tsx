@@ -18,7 +18,7 @@ const NavBar: React.FC<Props> = (props) => {
                 <Dropdown item text='Resources'>
                     <Dropdown.Menu>
                         <Dropdown.Item onClick={() => history.push('/persons')}>People</Dropdown.Item>
-                        <Dropdown.Item>Starships</Dropdown.Item>
+                        <Dropdown.Item onClick={() => history.push('/starships')}>Starships</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </Container>
