@@ -1,33 +1,107 @@
+import { gql, useQuery } from '@apollo/client';
 import * as React from 'react';
-import { Header } from 'semantic-ui-react';
-import { useQuery, gql } from '@apollo/client';
+import { Dimmer, Grid, Input, Loader, Table } from 'semantic-ui-react';
+import { StarshipQL } from '../models/Starship';
+import StarshipDetails from './StarshipDetails';
 
 interface Props { }
 
-const EXCHANGE_RATES = gql`
-  query GetExchangeRates {
-    rates(currency: "USD") {
-      currency
-      rate
+const SEARCH_STARSHIPS_BY_NAME = gql`
+  query SearchStarshipByName {
+    allStarships {
+      starships {
+        name
+        model
+      }
     }
-  }
+  }  
 `;
 
 const Starships: React.FC<Props> = (props) => {
-    const { loading, error, data } = useQuery<{rates: {currency: string, rate: string}[]}>(EXCHANGE_RATES);
-    
-    if (loading) return <p style={{ marginTop: '3em' }}>Loading...</p>;
-    if (error) return <p style={{ marginTop: '3em' }}>Error :(</p>;
+  const { loading, error, data } = useQuery<{ allStarships: { starships: StarshipQL[] } }>(SEARCH_STARSHIPS_BY_NAME, {});
+  const [starship, setStarship] = React.useState<StarshipQL>()
+  const [filterBy, setFilterBy] = React.useState<string | undefined>()
 
-    return <div style={{ marginTop: '3em' }}>
-        {data?.rates.map(({ currency, rate }) => (
-        <div key={currency}>
-            <p>
-                {currency}: {rate}
-            </p>
-        </div>
-    ))}
-    </div>
-};
+  const filtered = () => {
+    const regexp = new RegExp(`.*${filterBy}.*`)
+    return filterBy && filterBy !== ''
+      ? data?.allStarships.starships.filter((ship) => ship.name.toLowerCase().match(regexp))
+      : data?.allStarships.starships
+  }
+
+  return (
+    <Grid style={{ marginTop: '3em' }}>
+      {!!!starship && <Controls onFilter={setFilterBy} />}
+      {!!!starship && <SearchResults starships={filtered()} onStarshipSelected={setStarship} />}
+      {starship && <StarshipDetails starship={starship} />}
+      {loading &&
+        <Dimmer active  >
+          <Loader indeterminate>Loading...</Loader>
+        </Dimmer>
+      }
+      <pre>{JSON.stringify(error, null, 2)}</pre>
+    </Grid>
+  )
+}
+
+interface ControlProps {
+  onFilter: (filterBy: string) => void
+}
+
+const Controls = (props: ControlProps) => {
+  return (
+    <Grid.Row>
+      <Grid.Column width="4">
+        <Input
+          onChange={(_, data) => props.onFilter(data.value)}
+          placeholder='Filter by...'
+          fluid
+        />
+      </Grid.Column>
+    </Grid.Row>
+  )
+}
+
+interface SearchResultsProps {
+  onStarshipSelected: (person: StarshipQL) => void
+  starships?: StarshipQL[]
+}
+
+const SearchResults = (props: SearchResultsProps) =>
+  <Grid.Row>
+    <Grid.Column >
+      <StarshipTable {...props} />
+    </Grid.Column>
+  </Grid.Row>
+
+const StarshipTable = (props: SearchResultsProps) => (
+  <Table celled >
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell>Name</Table.HeaderCell>
+        <Table.HeaderCell>Model</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {props.starships?.map((starship, idx) => <StarshipRow starship={starship} key={idx} onStarshipSelected={props.onStarshipSelected} />)}
+    </Table.Body>
+  </Table>
+)
+
+const StarshipRow = (props: { starship: StarshipQL, onStarshipSelected: (starship: StarshipQL) => void }) =>
+  <Table.Row>
+    <Table.Cell selectable>
+      <a
+        href='/#'
+        onClick={(e) => {
+          e.preventDefault()
+          props.onStarshipSelected(props.starship)
+        }}
+      >
+        {props.starship.name}
+      </a>
+    </Table.Cell>
+    <Table.Cell>{props.starship.model}</Table.Cell>
+  </Table.Row>
 
 export default Starships;
