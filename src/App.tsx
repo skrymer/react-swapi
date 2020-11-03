@@ -8,7 +8,7 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
 import Starships from './components/Starships';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:3000',
+  uri: 'https://graphql.org/swapi-graphql',
   cache: new InMemoryCache()
 });
 
@@ -22,7 +22,7 @@ function App() {
             <Route path="/persons" component={Persons} />
             <Route path="/starships" component={Starships} />
             <Route path="/" component={Home} exact />
-            </Switch>
+          </Switch>
         </BrowserRouter>
       </Container>
     </ApolloProvider>

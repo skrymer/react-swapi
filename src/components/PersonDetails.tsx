@@ -4,6 +4,7 @@ import { Button, Dimmer, Grid, Header, List, Loader, Placeholder, Segment } from
 import { Film } from '../models/Film';
 import { HomeWorld } from '../models/HomeWorld';
 import { Person } from '../models/Person';
+import { Vehicle } from '../models/Vehicle';
 
 interface Props {
     person: Person
@@ -12,6 +13,7 @@ interface Props {
 
 const PersonDetails: React.FC<Props> = ({ person, onBackSelected }) => {
     const [films, setFilms] = React.useState<Film[]>()
+    const [vehicles, setVehicles] = React.useState<Vehicle[]>()
     const [homeWorld, setHomeworld] = React.useState<HomeWorld>()
 
     const mapFilm = (response: AxiosResponse<any>) => {
@@ -25,6 +27,9 @@ const PersonDetails: React.FC<Props> = ({ person, onBackSelected }) => {
 
             Promise.all(person.films.map(url => Axios.get(url)))
                 .then((values) => setFilms(values.map(mapFilm)))
+
+            Promise.all(person.vehicles.map(url => Axios.get<Vehicle>(url)))
+                .then((values) => setVehicles(values.map(resp => resp.data)))
         }
     }, [person])
 
@@ -73,7 +78,7 @@ const PersonDetails: React.FC<Props> = ({ person, onBackSelected }) => {
                     <Films films={films} />
                 </Grid.Column>
                 <Grid.Column width="4">
-                    <Vehicles />
+                    <Vehicles vehicles={vehicles}/>
                 </Grid.Column>
                 <Grid.Column width="4">
                     <Starships />
@@ -99,12 +104,12 @@ const Films = ({ films }: { films?: Film[] }) => {
     )
 }
 
-const Vehicles = () => (
-    <Segment>
+const Vehicles = ({vehicles}: {vehicles?: Vehicle[]}) => (
+    <Segment loading={!!!vehicles}>
         <Header as="h3">Vehicles</Header>
-        <Dimmer active inverted >
-            <Loader inverted indeterminate>Loading...</Loader>
-        </Dimmer>
+        <List as='ul'>
+                {vehicles?.map((vehicle, idx) => (<List.Item as='li' key={idx}>{vehicle.name}</List.Item>))}
+            </List>
     </Segment>
 )
 

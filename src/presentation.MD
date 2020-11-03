@@ -1,29 +1,55 @@
 what are we going to cover:
 
-what are we going to build, show wireframes
+Recap from last meeting
 
-setup the application using react starter
+What did we build 
 
-install sematic ui
-* npm i semantic-ui-react
-* npm i semantic-ui-css
+    person details component
 
-intro to swapi
+    fetch home world name from api
 
-install axios
-* npm i axios
 
-How to call swape using axios
+What will we cover today
 
-Create types for swapi - copy from example
+    finish person details screen 
+    
+    add films the person has been in
 
-show results being printed on screen using pre
+    back to search button
 
-add search controls
+    add navbar 
 
-create search results component
+    add home page component
 
-store search results in state and pass down as props to search results
+React router
 
-create Person Details component
+    router
 
+    switch
+
+    route
+    
+    add home screen at /
+
+    add route to people search /people
+
+    add nav bar 
+
+    react router hooks
+
+What should we look at next?
+
+    react hooks
+
+    create our own swapi using spring boot
+        -
+
+    graphQL
+
+    test containers
+
+    yarn workspaces
+
+    react form libs
+        formik
+        react form hooks
