@@ -1,6 +1,6 @@
-import Axios, { AxiosResponse } from 'axios';
+import Axios from 'axios';
 import * as React from 'react';
-import { Button, Dimmer, Grid, Header, List, Loader, Placeholder, Segment } from 'semantic-ui-react';
+import { Button, Grid, Header, List, Placeholder, Segment } from 'semantic-ui-react';
 import { Film } from '../models/Film';
 import { HomeWorld } from '../models/HomeWorld';
 import { Person } from '../models/Person';
@@ -16,17 +16,13 @@ const PersonDetails: React.FC<Props> = ({ person, onBackSelected }) => {
     const [vehicles, setVehicles] = React.useState<Vehicle[]>()
     const [homeWorld, setHomeworld] = React.useState<HomeWorld>()
 
-    const mapFilm = (response: AxiosResponse<any>) => {
-        return { title: response.data.title, url: response.data.url }
-    }
-
     React.useEffect(() => {
         if (person) {
             Axios.get(person.homeworld)
                 .then(values => setHomeworld(values.data))
 
-            Promise.all(person.films.map(url => Axios.get(url)))
-                .then((values) => setFilms(values.map(mapFilm)))
+            Promise.all(person.films.map(url => Axios.get<Film>(url)))
+                .then((values) => setFilms(values.map(resp => resp.data)))
 
             Promise.all(person.vehicles.map(url => Axios.get<Vehicle>(url)))
                 .then((values) => setVehicles(values.map(resp => resp.data)))
@@ -78,7 +74,7 @@ const PersonDetails: React.FC<Props> = ({ person, onBackSelected }) => {
                     <Films films={films} />
                 </Grid.Column>
                 <Grid.Column width="4">
-                    <Vehicles vehicles={vehicles}/>
+                    <Vehicles vehicles={vehicles} />
                 </Grid.Column>
                 <Grid.Column width="4">
                     <Starships />
@@ -93,23 +89,22 @@ const PersonDetails: React.FC<Props> = ({ person, onBackSelected }) => {
     );
 };
 
-const Films = ({ films }: { films?: Film[] }) => {
-    return (
-        <Segment loading={!!!films}>
-            <Header as="h3">Films</Header>
-            <List as='ul'>
-                {films?.map((film, idx) => (<List.Item as='li' key={idx}>{film.title}</List.Item>))}
-            </List>
-        </Segment>
-    )
-}
+const Films = ({ films }: { films?: Film[] }) => (
+    <Segment loading={!!!films}>
+        <Header as="h3">Films</Header>
+        <List as='ul'>
+            {films?.map((film, idx) => (<List.Item as='li' key={idx}>{film.title}</List.Item>))}
+        </List>
+    </Segment>
+)
 
-const Vehicles = ({vehicles}: {vehicles?: Vehicle[]}) => (
+
+const Vehicles = ({ vehicles }: { vehicles?: Vehicle[] }) => (
     <Segment loading={!!!vehicles}>
         <Header as="h3">Vehicles</Header>
         <List as='ul'>
-                {vehicles?.map((vehicle, idx) => (<List.Item as='li' key={idx}>{vehicle.name}</List.Item>))}
-            </List>
+            {vehicles?.map((vehicle, idx) => (<List.Item as='li' key={idx}>{vehicle.name}</List.Item>))}
+        </List>
     </Segment>
 )
 

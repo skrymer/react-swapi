@@ -1,70 +1,68 @@
-import { gql, useQuery } from '@apollo/client';
+import Axios from 'axios';
 import * as React from 'react';
-import { Dimmer, Grid, Input, Loader, Table } from 'semantic-ui-react';
-import { StarshipQL } from '../models/Starship';
-import StarshipDetails from './StarshipDetails';
+import { useHistory } from 'react-router-dom';
+import { Button, Dimmer, Grid, Input, Loader, Table } from 'semantic-ui-react';
+import { Starship } from '../models/Starship';
 
 interface Props { }
 
-const SEARCH_STARSHIPS_BY_NAME = gql`
-  query SearchStarshipByName {
-    allStarships {
-      starships {
-        name
-        model
-      }
-    }
-  }  
-`;
-
 const Starships: React.FC<Props> = (props) => {
-  const { loading, error, data } = useQuery<{ allStarships: { starships: StarshipQL[] } }>(SEARCH_STARSHIPS_BY_NAME, {});
-  const [starship, setStarship] = React.useState<StarshipQL>()
-  const [filterBy, setFilterBy] = React.useState<string | undefined>()
+  const [starships, setStarships] = React.useState()
+  const [loading, setLoading] = React.useState(false)
+  const history = useHistory()
+  
+  const handleSearch = (searchBy?: string) => {
+    setLoading(true)
 
-  const filtered = () => {
-    const regexp = new RegExp(`.*${filterBy}.*`)
-    return filterBy && filterBy !== ''
-      ? data?.allStarships.starships.filter((ship) => ship.name.toLowerCase().match(regexp))
-      : data?.allStarships.starships
+    Axios.get(`https://swapi.dev/api/starships?search=${searchBy}`).then((resp) => {
+      setStarships(resp.data.results)
+    }).finally(() => setLoading(false))
+  }
+
+  const handleStarshipSelected = (starship: Starship) => { 
+    const id = starship?.url.match(/\d\/$/g)?.pop()
+    history.push(`starships/${id}` )
   }
 
   return (
     <Grid style={{ marginTop: '3em' }}>
-      {!!!starship && <Controls onFilter={setFilterBy} />}
-      {!!!starship && <SearchResults starships={filtered()} onStarshipSelected={setStarship} />}
-      {starship && <StarshipDetails starship={starship} />}
+      <Controls onSearch={handleSearch} />
+      <SearchResults starships={starships} onStarshipSelected={handleStarshipSelected} />
       {loading &&
         <Dimmer active  >
           <Loader indeterminate>Loading...</Loader>
         </Dimmer>
       }
-      <pre>{JSON.stringify(error, null, 2)}</pre>
     </Grid>
   )
 }
 
 interface ControlProps {
-  onFilter: (filterBy: string) => void
+  onSearch: (searchBy: string) => void
 }
 
 const Controls = (props: ControlProps) => {
+  const [searchBy, setSearchBy] = React.useState<string>('')
+
   return (
     <Grid.Row>
       <Grid.Column width="4">
         <Input
-          onChange={(_, data) => props.onFilter(data.value)}
-          placeholder='Filter by...'
+          placeholder='Search by...'
           fluid
+          onChange={(_, value) => setSearchBy(value.value)}
         />
+      </Grid.Column>
+      <Grid.Column>
+        <Button onClick={() => props.onSearch(searchBy)}>Search</Button>
       </Grid.Column>
     </Grid.Row>
   )
 }
 
 interface SearchResultsProps {
-  onStarshipSelected: (person: StarshipQL) => void
-  starships?: StarshipQL[]
+  onStarshipSelected: (starship: Starship) => void
+  starships?: Starship[]
 }
 
 const SearchResults = (props: SearchResultsProps) =>
@@ -80,6 +78,7 @@ const StarshipTable = (props: SearchResultsProps) => (
       <Table.Row>
         <Table.HeaderCell>Name</Table.HeaderCell>
         <Table.HeaderCell>Model</Table.HeaderCell>
+        <Table.HeaderCell>URL</Table.HeaderCell>
       </Table.Row>
     </Table.Header>
     <Table.Body>
@@ -88,7 +87,7 @@ const StarshipTable = (props: SearchResultsProps) => (
   </Table>
 )
 
-const StarshipRow = (props: { starship: StarshipQL, onStarshipSelected: (starship: StarshipQL) => void }) =>
+const StarshipRow = (props: { starship: Starship, onStarshipSelected: (starship: Starship) => void }) =>
   <Table.Row>
     <Table.Cell selectable>
       <a
@@ -102,6 +101,7 @@ const StarshipRow = (props: { starship: StarshipQL, onStarshipSelected: (starshi
       </a>
     </Table.Cell>
     <Table.Cell>{props.starship.model}</Table.Cell>
+    <Table.Cell>{props.starship.url}</Table.Cell>
   </Table.Row>
 
 export default Starships;
