@@ -20,8 +20,8 @@ const Starships: React.FC<Props> = (props) => {
   }
 
   const handleStarshipSelected = (starship: Starship) => { 
-    const id = starship?.url.match(/\d\/$/g)?.pop()
-    history.push(`starships/${id}` )
+    const id = starship?.url.match(/\d*\/$/g)        
+    history.push(`starships/${id ? id[0] : 'unknownid'}` )
   }
 
   return (
