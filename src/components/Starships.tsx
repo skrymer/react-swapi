@@ -54,7 +54,7 @@ const Controls = (props: ControlProps) => {
         />
       </Grid.Column>
       <Grid.Column>
-        <Button onClick={() => props.onSearch(searchBy)}>Search</Button>
+        <Button primary onClick={() => props.onSearch(searchBy)}>Search</Button>
       </Grid.Column>
     </Grid.Row>
   )
