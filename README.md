@@ -4,10 +4,12 @@
 * suspense https://reactjs.org/docs/concurrent-mode-suspense.html
 * react swr https://swr.vercel.app/
 * styled components https://styled-components.com/docs/basics
-* rest
-* graphql
-* state mangement 
-* formik
+* REST
+* GraphQL 
+* State mangement useState, useReducer, redux 
+* Formik https://formik.org/
+* React Hook Form https://react-hook-form.com/
+* testing using jest (https://jestjs.io/) and React Testing Library (https://testing-library.com)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
